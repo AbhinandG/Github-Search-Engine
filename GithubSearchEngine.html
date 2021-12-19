@@ -1,0 +1,127 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml-transitional.dtd">
+
+<html xlms="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <title>Title</title>
+
+  <style>
+    body{
+      background-color:green;
+    }
+    img{
+      width:100px;
+      height:100px;
+    }
+    li{
+      list-style:none;
+      margin-top:2px;
+    }
+    ul{
+      background-color:yellow;
+      margin-left:500px;
+      margin-right:500px;
+    }
+
+  </style>
+</head>
+
+<body>
+  <center><h1>GitHub User Search Engine!</h1></center>
+  <center><button id="button">Get All Users</button></center>
+  <br>
+  <br>
+  <center><input type="text" id="usertext"></input> <button id="submitbutton">Search User</button></center>
+  <center><p id="deets"> </p></center>
+</body>
+
+  <script>
+
+    document.getElementById("submitbutton").addEventListener('click',(e)=>{
+      var xhr=new XMLHttpRequest();
+      var xhr1=new XMLHttpRequest();
+      console.log('READYSTATE: ',xhr.readyState);
+      var username=document.getElementById('usertext').value;
+      var url_needed=`https://api.github.com/users/${username}`;
+      var repo_url=`https://api.github.com/users/${username}/repos`;
+      xhr.open('GET',url_needed,true);
+      xhr1.open('GET',repo_url,true);
+      console.log('READYSTATE: ',xhr.readyState);
+
+            xhr.onprogress=function(){
+              console.log('READYSTATE: ',xhr.readyState);
+            }
+
+
+            xhr.onload=function(){
+              var output='';
+              console.log('READYSTATE: ',xhr.readyState);
+              if(this.status==200){
+                var user=JSON.parse(this.responseText);
+                output+='<ul>' + '<li>Name: '+user.login+'</li> '
+                               + '<li>ID: '+user.id+'</li>'
+                               + '<li> <img src='+user.avatar_url+'/> </li>'
+                        +'</ul>';
+                document.getElementById('deets').innerHTML=output;
+
+              }
+              if(this.status==404){
+                document.getElementById('deets').innerHTML="404 ERROR! User not found.";
+              }
+            }
+
+            xhr1.onload=function(){
+              var nextoutput='';
+              if(this.status==200){
+                var repos=JSON.parse(this.responseText);
+                for(var i in repos){
+                nextoutput+='<ul>' + '<li><strong>Repository No. '+i+' :</strong>'+repos[i].name+'</li> </ul>';
+              }
+                document.getElementById('deets').innerHTML+=nextoutput;
+              }
+            }
+
+
+            xhr.send();
+            xhr1.send();
+    })
+
+
+
+    document.getElementById("button").addEventListener('click',(e)=>{
+      var xhr=new XMLHttpRequest();
+      console.log('READYSTATE: ',xhr.readyState);
+      xhr.open('GET','https://api.github.com/users',true);
+
+      console.log('READYSTATE: ',xhr.readyState);
+
+      xhr.onprogress=function(){
+        console.log('READYSTATE: ',xhr.readyState);
+      }
+
+      xhr.onload=function(){
+        var output='';
+        console.log('READYSTATE: ',xhr.readyState);
+        if(this.status==200){
+          var user=JSON.parse(this.responseText);
+
+          for(i in user){
+
+          output+='<ul>' + '<li>Name: '+user[i].login+'</li> '
+                         + '<li>ID: '+user[i].id+'</li>'
+                         + '<li> <img src='+user[i].avatar_url+'/> </li>'
+                  +'</ul>';
+          }
+          document.getElementById('deets').innerHTML=output;
+
+        }
+      }
+
+      xhr.send();
+
+    })
+  </script>
+
+</html>
